@@ -1,3 +1,6 @@
 [submodule "gl-matrix"]
 	path = gl-matrix
 	url = https://github.com/toji/gl-matrix.git
+[submodule "webxr-polyfill"]
+	path = webxr-polyfill
+	url = https://github.com/immersive-web/webxr-polyfill.git
