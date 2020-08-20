@@ -1,3 +1,47 @@
+// Block Orientations
+// top can be up, down, east, west, north, south
+// front can be any of the 4 touching whatever up is.
+// 24 total orientations
+// 5 bits can store all combinations
+// 10 bits left for texture set index
+
+/* base 6
+0 east
+1 west
+2 up
+3 down
+4 south
+5 north
+
+      02 03 04 05
+      12 13 14 15
+20 21       24 25
+30 31       34 35
+40 41 42 43
+50 51 52 53
+
+n cannot be paired with either of:
+  a = n - (n % 2)
+  b = a + 1
+
+00 east
+01 west
+02 up
+03 down
+04 south
+05 north
+
+*/
+
+// Face Orientations
+// Each face can be rotated 4 directions in 90 degree clockwise increments
+// down faces down for sides, down faces front for top and bottom.
+// 2 bits for face rotation.
+// 10 bits for texture index
+// 6 bits free
+
+const chunk = new Uint8Array(16 * 16 * 16)
+
 // 10 bits for texture index
 const BARREL_TOP = 0
 const BARREL_SIDE = 1
@@ -49,7 +93,7 @@ const BACK = 5 << 20 // 0,0,-1
 
 // 1 bit of precision leftover
 
-function generateBlock (x, y, z, w, h, d, right, left, top, bottom, front, back) {
+function generateBlock(x, y, z, w, h, d, right, left, top, bottom, front, back) {
   return [
     // x, y, z, normal index | texture coordinate index | texture index
     x + w, y + 0, z + 0, RIGHT | BR(d, h) | right,

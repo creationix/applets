@@ -1,5 +1,5 @@
-import renderer from './renderer.js'
-import { invert, translate } from './gl-matrix/src/mat4.js'
+import makeScene from "../libs/scene.js"
+import { create as createMat4, multiply, translate } from "../libs/gl-matrix/src/mat4.js"
 
 // XR globals.
 const xrButton = document.getElementById('xr-button')
@@ -7,14 +7,14 @@ let xrSession = null
 let xrRefSpace = null
 
 // WebGL scene globals.
-let gl = null
 
-let scene = null
+/** @type {WebGL2RenderingContext} */
+let gl = null
 
 // Checks to see if WebXR is available and, if so, requests an XRDevice
 // that is connected to the system and tests it to ensure it supports the
 // desired session options.
-function initXR () {
+function initXR() {
   // Is WebXR available on this UA?
   if (navigator.xr) {
     // If the device allows creation of exclusive sessions set it as the
@@ -32,7 +32,7 @@ function initXR () {
 
 // Called when the user clicks the button to enter XR. If we don't have a
 // session we'll request one, and if we do have a session we'll end it.
-function onButtonClicked () {
+function onButtonClicked() {
   if (!xrSession) {
     navigator.xr.requestSession('immersive-vr').then(onSessionStarted)
   } else {
@@ -40,9 +40,11 @@ function onButtonClicked () {
   }
 }
 
+let drawScene
+
 // Called when we've successfully acquired a XRSession. In response we
 // will set up the necessary session state and kick off the frame loop.
-async function onSessionStarted (session) {
+async function onSessionStarted(session) {
   xrSession = session
   xrButton.textContent = 'Exit VR'
 
@@ -60,7 +62,12 @@ async function onSessionStarted (session) {
   // be displayed on the XRDevice.
   session.updateRenderState({ baseLayer: new XRWebGLLayer(session, gl) })
 
-  scene = await renderer(gl)
+  gl.clearColor(0, 0, 0, 0.5)
+  gl.enable(gl.DEPTH_TEST)
+  gl.enable(gl.CULL_FACE)
+  gl.cullFace(gl.BACK)
+
+  drawScene = makeScene(gl)
 
   // Get a reference space, which is required for querying poses. In this
   // case an 'local' reference space means that all poses will be relative
@@ -75,7 +82,7 @@ async function onSessionStarted (session) {
 // session.end() or when the UA has ended the session for any reason.
 // At this point the session object is no longer usable and should be
 // discarded.
-function onSessionEnded (event) {
+function onSessionEnded(event) {
   xrSession = null
   xrButton.textContent = 'Enter VR'
 
@@ -84,10 +91,10 @@ function onSessionEnded (event) {
   gl = null
 }
 
-const M = new Float32Array(16)
+const V = createMat4()
 
 // Called every time the XRSession requests that a new frame be drawn.
-function onXRFrame (time, frame) {
+function onXRFrame(time, frame) {
   const session = frame.session
 
   // Inform the session that we're ready for the next frame.
@@ -110,24 +117,12 @@ function onXRFrame (time, frame) {
     // rendered.
     gl.bindFramebuffer(gl.FRAMEBUFFER, glLayer.framebuffer)
 
-    scene.clear()
-
-    // Normally you'd loop through each of the views reported by the frame
-    // and draw them into the corresponding viewport here, but we're
-    // keeping this sample slim so we're not bothering to draw any
-    // geometry.
-    scene.clear()
-    const time = Date.now() * 0.001
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
     for (const view of pose.views) {
-      const viewport = glLayer.getViewport(view)
-      scene.updateViewport(viewport.x, viewport.y, viewport.width, viewport.height)
-      // Draw a scene using view.projectionMatrix as the projection matrix
-      // and view.transform to position the virtual camera. If you need a
-      // view matrix, use view.transform.inverse.matrix.
-      scene.updateProjection(view.projectionMatrix)
-      const viewInverse = translate(M, view.transform.inverse.matrix, [-10, -3 - 1.93, -8])
-      scene.updateView(viewInverse)
-      scene.draw(time)
+      const { x, y, width, height } = glLayer.getViewport(view)
+      gl.viewport(x, y, width, height)
+      multiply(V, view.projectionMatrix, translate(V, view.transform.inverse.matrix, [-10, -3 - 1.93, -8]))
+      drawScene(V)
     }
   }
 }

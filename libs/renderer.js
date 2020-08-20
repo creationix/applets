@@ -1,13 +1,15 @@
 import data from './chunk-data.js'
+import makeSky from "./sky.js"
 
 /**
  * @param {WebGL2RenderingContext} gl
  */
 export default async function renderer (gl) {
+  const sky = makeSky(gl)
   // Load shaders and texture
   const [img, program] = await Promise.all([
-    loadImage('minecraft-block-textures.webp'),
-    loadProgram(gl, 'shader-vert.glsl', 'shader-frag.glsl')
+    loadImage('../imgs/minecraft-block-textures.webp'),
+    loadProgram(gl, '../libs/shaders/block.vert', '../libs/shaders/block.frag')
   ])
   gl.useProgram(program)
 
@@ -47,42 +49,16 @@ export default async function renderer (gl) {
   gl.enable(gl.CULL_FACE)
   gl.cullFace(gl.BACK)
 
-  return {
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @param {number} w
-     * @param {number} h
-     */
-    updateViewport (x, y, w, h) {
-      gl.viewport(x, y, w, h)
-    },
-    /**
-     * @param {Float32Array} P projection transform mat4
-     */
-    updateProjection (P) {
-      gl.uniformMatrix4fv(projectionVar, false, P)
-    },
-    /**
-     * @param {Float32Array} V view transform mat4
-     */
-    updateView (V) {
-      gl.uniformMatrix4fv(viewVar, false, V)
-    },
-    clear () {
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-    },
-    /**
-     * @param {number} time time of day in hours 0=midnight 12=noon
-     */
-    draw (time) {
+  return fnuction draw ([x,y,w,h], P, V, time) {
       const a = time / 12 * Math.PI
-      // Sun position and moon position.
       gl.uniform3f(lightPosVar, Math.sin(a) * 100, -Math.abs(Math.cos(a) * 100), 0)
       gl.uniform3f(lightColorVar, 1, 0.9, 0.8)
       gl.uniform3f(ambientColorVar, 0.2, 0.2, 0.2)
 
-      //   gl.drawArrays(gl.LINES, 0, data.length >> 2)
+      gl.viewport(x, y, w, h)
+      gl.uniformMatrix4fv(projectionVar, false, P)
+      gl.uniformMatrix4fv(viewVar, false, V)
+      // gl.drawArrays(gl.LINES, 0, data.length >> 2)
       gl.drawArrays(gl.TRIANGLES, 0, data.length >> 2)
     }
   }
