@@ -1,7 +1,11 @@
-import * as twgl from "./twgl.js/dist/4.x/twgl-full.module.js"
-import { m4 } from "./twgl.js/dist/4.x/twgl-full.module.js"
-/** @typedef { import('./twgl.js/dist/4.x/twgl').ProgramInfo } ProgramInfo */
-/** @typedef { import('./twgl.js/dist/4.x/twgl').BufferInfo } BufferInfo */
+import {
+  createBuffer,
+  createCubeMap,
+  createProgram,
+  loadImage,
+  setBuffersAndAttributes,
+  setUniforms,
+} from "./gl.js"
 
 const vert = `#version 300 es
   precision highp float;
@@ -10,7 +14,7 @@ const vert = `#version 300 es
   uniform mat4 viewProjection;
 
   out vec3 texCoord;
-  
+
   void main() {
       gl_Position = viewProjection * vec4(position, 1);
       texCoord = position;
@@ -23,29 +27,24 @@ const frag = `#version 300 es
   in vec3 texCoord;
   out vec4 fragColor;
   uniform samplerCube cubemap;
-  
+
   void main (void) {
       fragColor = texture(cubemap, texCoord);
   }
 `
 
+
 /**
  * @param {WebGL2RenderingContext} gl
  */
-export default function makeSky(gl) {
+export default async function makeSky(gl, url) {
 
-  /** 
-   * Sky rendering program
-   * @type {ProgramInfo}
-   */
-  const programInfo = twgl.createProgramInfo(gl, [vert, frag])
+  const skyImage = loadImage(url)
 
-  /** 
-   * Skybox cube (triangles face inward)
-   * @type {BufferInfo} 
-   */
-  const bufferInfo = twgl.createBufferInfoFromArrays(gl, {
-    position: [
+  const programInfo = createProgram(gl, vert, frag)
+
+  const bufferInfo = createBuffer(gl, programInfo.attributes, {
+    position: new Float32Array([
       100, 100, 100,
       100, 100, -100,
       100, -100, 100,
@@ -54,24 +53,21 @@ export default function makeSky(gl) {
       -100, 100, -100,
       -100, -100, 100,
       -100, -100, -100,
-    ],
-    indices: [
+    ]),
+    indices: new Uint8Array([
       0, 3, 2, 3, 0, 1, // +X
       4, 7, 5, 7, 4, 6, // -X
       0, 5, 1, 5, 0, 4, // +Y
       2, 7, 6, 7, 2, 3, // -Y
       0, 6, 4, 6, 0, 2, // +Z
       1, 7, 3, 7, 1, 5, // -Z
-    ]
+    ])
   })
 
   /**
    * Skybox texture
    */
-  const cubemap = twgl.createTexture(gl, {
-    target: gl.TEXTURE_CUBE_MAP,
-    src: '../imgs/orange-sky.webp',
-  })
+  const cubemap = createCubeMap(gl, await skyImage)
 
   return drawSky
 
@@ -81,8 +77,8 @@ export default function makeSky(gl) {
    */
   function drawSky(viewProjection) {
     gl.useProgram(programInfo.program);
-    twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
-    twgl.setUniforms(programInfo, { viewProjection, cubemap });
-    twgl.drawBufferInfo(gl, bufferInfo);
+    setUniforms(gl, programInfo.uniforms, { viewProjection, cubemap })
+    setBuffersAndAttributes(gl, bufferInfo)
+    gl.drawElements(gl.TRIANGLES, bufferInfo.numElements, gl.UNSIGNED_BYTE, 0)
   }
 }

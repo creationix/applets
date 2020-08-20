@@ -1,5 +1,5 @@
 import makeScene from "../libs/scene.js"
-import { create as createMat4, multiply, translate } from "../libs/gl-matrix/src/mat4.js"
+import * as mat4 from "../libs/gl-matrix/src/mat4.js"
 
 // XR globals.
 const xrButton = document.getElementById('xr-button')
@@ -67,7 +67,7 @@ async function onSessionStarted(session) {
   gl.enable(gl.CULL_FACE)
   gl.cullFace(gl.BACK)
 
-  drawScene = makeScene(gl)
+  drawScene = await makeScene(gl)
 
   // Get a reference space, which is required for querying poses. In this
   // case an 'local' reference space means that all poses will be relative
@@ -91,7 +91,7 @@ function onSessionEnded(event) {
   gl = null
 }
 
-const V = createMat4()
+const V = mat4.create()
 
 // Called every time the XRSession requests that a new frame be drawn.
 function onXRFrame(time, frame) {
@@ -121,7 +121,7 @@ function onXRFrame(time, frame) {
     for (const view of pose.views) {
       const { x, y, width, height } = glLayer.getViewport(view)
       gl.viewport(x, y, width, height)
-      multiply(V, view.projectionMatrix, translate(V, view.transform.inverse.matrix, [-10, -3 - 1.93, -8]))
+      mat4.multiply(V, view.projectionMatrix, mat4.translate(V, view.transform.inverse.matrix, [-10, -3 - 1.93, -8]))
       drawScene(V)
     }
   }

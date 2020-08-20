@@ -4,10 +4,12 @@ import makeChunk from "./chunk.js"
 /**
  * @param {WebGL2RenderingContext} gl
  */
-export default function makeScene(gl) {
+export default async function makeScene(gl) {
 
-  const drawSky = makeSky(gl)
-  const drawChunk = makeChunk(gl)
+  const [drawSky, drawChunk] = await Promise.all([
+    makeSky(gl, "../imgs/blue-sky.webp"),
+    makeChunk(gl)
+  ])
 
   return drawScene
 
