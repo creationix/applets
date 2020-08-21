@@ -101,13 +101,13 @@ makeScene(gl).then(drawScene => {
     const now = Date.now()
     const delta = time - now
     time = now
-    const dist = delta * .0043
+    const dist = delta * move.speed
     const ry = move.rotateY * Math.PI / 180
     const rx = move.rotateX * Math.PI / 180
 
     // Movement is enabled when pointer is locked
     if (document.pointerLockElement === canvas) {
-      vec3.scaleAndAdd(position, position, vec3.rotateY(T, vec3.set(T, move.x, move.y, move.z), [0, 0, 0], ry), dist)
+      vec3.scaleAndAdd(position, position, vec3.rotateY(T, vec3.normalize(T, vec3.set(T, move.x, move.y, move.z)), [0, 0, 0], ry), dist)
     }
 
     quat.identity(Q)
