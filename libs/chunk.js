@@ -5,8 +5,8 @@ import {
   createProgram,
   loadImage,
   setBuffersAndAttributes,
-  setUniforms,
-} from "./gl.js"
+  setUniforms
+} from './gl.js'
 
 const vert = `#version 300 es
   precision highp float;
@@ -48,6 +48,7 @@ const frag = `#version 300 es
       discard;
     }
     outColor = textureColor;
+
     // TODO: lighting?
   }
 `
@@ -58,10 +59,9 @@ const img = loadImage('../imgs/minecraft-block-textures.webp')
 /**
  * @param {WebGL2RenderingContext} gl
  */
-export default async function makeChunk(gl) {
-
+export default async function makeChunk (gl) {
   const programInfo = createProgram(gl, vert, frag)
-	const bufferInfo = createBuffer(gl, programInfo.attributes, { data })
+  const bufferInfo = createBuffer(gl, programInfo.attributes, { data })
   const blocks = createArrayTexture(gl, 16, 16, 32, await img)
 
   return drawChunk
@@ -70,11 +70,10 @@ export default async function makeChunk(gl) {
    * Draw the chunk
    * @param {Float32Array} viewProjection
    */
-  function drawChunk(viewProjection) {
+  function drawChunk (viewProjection) {
     gl.useProgram(programInfo.program)
     setUniforms(gl, programInfo.uniforms, { viewProjection, blocks })
     setBuffersAndAttributes(gl, bufferInfo)
     gl.drawArrays(gl.TRIANGLES, 0, bufferInfo.numElements)
   }
-
 }

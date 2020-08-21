@@ -93,7 +93,7 @@ const BACK = 5 << 20 // 0,0,-1
 
 // 1 bit of precision leftover
 
-function generateBlock(x, y, z, w, h, d, right, left, top, bottom, front, back) {
+function generateBlock (x, y, z, w, h, d, right, left, top, bottom, front, back) {
   return [
     // x, y, z, normal index | texture coordinate index | texture index
     x + w, y + 0, z + 0, RIGHT | BR(d, h) | right,

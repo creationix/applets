@@ -1,5 +1,5 @@
-import makeScene from "../libs/scene.js"
-import * as mat4 from "../libs/gl-matrix/src/mat4.js"
+import makeScene from '../libs/scene.js'
+import * as mat4 from '../libs/gl-matrix/src/mat4.js'
 
 // XR globals.
 const xrButton = document.getElementById('xr-button')
@@ -14,7 +14,7 @@ let gl = null
 // Checks to see if WebXR is available and, if so, requests an XRDevice
 // that is connected to the system and tests it to ensure it supports the
 // desired session options.
-function initXR() {
+function initXR () {
   // Is WebXR available on this UA?
   if (navigator.xr) {
     // If the device allows creation of exclusive sessions set it as the
@@ -32,7 +32,7 @@ function initXR() {
 
 // Called when the user clicks the button to enter XR. If we don't have a
 // session we'll request one, and if we do have a session we'll end it.
-function onButtonClicked() {
+function onButtonClicked () {
   if (!xrSession) {
     navigator.xr.requestSession('immersive-vr').then(onSessionStarted)
   } else {
@@ -44,7 +44,7 @@ let drawScene
 
 // Called when we've successfully acquired a XRSession. In response we
 // will set up the necessary session state and kick off the frame loop.
-async function onSessionStarted(session) {
+async function onSessionStarted (session) {
   xrSession = session
   xrButton.textContent = 'Exit VR'
 
@@ -60,7 +60,7 @@ async function onSessionStarted(session) {
   // Use the new WebGL context to create a XRWebGLLayer and set it as the
   // sessions baseLayer. This allows any content rendered to the layer to
   // be displayed on the XRDevice.
-  session.updateRenderState({ baseLayer: new XRWebGLLayer(session, gl) })
+  session.updateRenderState({ baseLayer: new window.XRWebGLLayer(session, gl) })
 
   gl.clearColor(0, 0, 0, 0.5)
   gl.enable(gl.DEPTH_TEST)
@@ -82,7 +82,7 @@ async function onSessionStarted(session) {
 // session.end() or when the UA has ended the session for any reason.
 // At this point the session object is no longer usable and should be
 // discarded.
-function onSessionEnded(event) {
+function onSessionEnded (event) {
   xrSession = null
   xrButton.textContent = 'Enter VR'
 
@@ -94,7 +94,7 @@ function onSessionEnded(event) {
 const V = mat4.create()
 
 // Called every time the XRSession requests that a new frame be drawn.
-function onXRFrame(time, frame) {
+function onXRFrame (time, frame) {
   const session = frame.session
 
   // Inform the session that we're ready for the next frame.
