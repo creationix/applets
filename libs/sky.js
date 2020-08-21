@@ -33,7 +33,6 @@ const frag = `#version 300 es
   }
 `
 
-
 /**
  * @param {WebGL2RenderingContext} gl
  */
@@ -45,14 +44,14 @@ export default async function makeSky(gl, url) {
 
   const bufferInfo = createBuffer(gl, programInfo.attributes, {
     position: new Float32Array([
-      100, 100, 100,
-      100, 100, -100,
-      100, -100, 100,
-      100, -100, -100,
-      -100, 100, 100,
-      -100, 100, -100,
-      -100, -100, 100,
-      -100, -100, -100,
+      1000, 1000, 1000,
+      1000, 1000, -1000,
+      1000, -1000, 1000,
+      1000, -1000, -1000,
+      -1000, 1000, 1000,
+      -1000, 1000, -1000,
+      -1000, -1000, 1000,
+      -1000, -1000, -1000,
     ]),
     indices: new Uint8Array([
       0, 3, 2, 3, 0, 1, // +X
