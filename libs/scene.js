@@ -16,8 +16,8 @@ export default async function makeScene (gl) {
    * Draw the scene
    * @param {Float32Array} viewProjection
    */
-  function drawScene (viewProjection) {
-    drawChunk(viewProjection)
-    drawSky(viewProjection)
+  function drawScene (viewProjection, positions) {
+    drawChunk(viewProjection, positions)
+    drawSky(viewProjection, positions)
   }
 }

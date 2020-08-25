@@ -1,5 +1,6 @@
 import makeScene from '../libs/scene.js'
 import * as mat4 from '../libs/gl-matrix/src/mat4.js'
+import * as vec3 from '../libs/gl-matrix/src/vec3.js'
 
 // XR globals.
 const xrButton = document.getElementById('xr-button')
@@ -34,7 +35,10 @@ function initXR () {
 // session we'll request one, and if we do have a session we'll end it.
 function onButtonClicked () {
   if (!xrSession) {
-    navigator.xr.requestSession('immersive-vr').then(onSessionStarted)
+    navigator.xr.requestSession('immersive-vr', {
+      requiredFeatures: ['local-floor'],
+      optionalFeatures: ['bounded-floor']
+    }).then(onSessionStarted)
   } else {
     xrSession.end()
   }
@@ -62,7 +66,7 @@ async function onSessionStarted (session) {
   // be displayed on the XRDevice.
   session.updateRenderState({ baseLayer: new window.XRWebGLLayer(session, gl) })
 
-  gl.clearColor(0, 0, 0, 0.5)
+  gl.clearColor(0, 0, 0, 1)
   gl.enable(gl.DEPTH_TEST)
   gl.enable(gl.CULL_FACE)
   gl.cullFace(gl.BACK)
@@ -72,7 +76,7 @@ async function onSessionStarted (session) {
   // Get a reference space, which is required for querying poses. In this
   // case an 'local' reference space means that all poses will be relative
   // to the location where the XRDevice was first detected.
-  xrRefSpace = await session.requestReferenceSpace('local')
+  xrRefSpace = await session.requestReferenceSpace('local-floor')
 
   // Inform the session that we're ready to begin drawing.
   session.requestAnimationFrame(onXRFrame)
@@ -92,6 +96,11 @@ function onSessionEnded (event) {
 }
 
 const V = mat4.create()
+const VP = mat4.create()
+const position = new Float32Array([10, 3, 8])
+const eyePos = new Float32Array(3)
+const light1Pos = new Float32Array(3)
+const light2Pos = new Float32Array(3)
 
 // Called every time the XRSession requests that a new frame be drawn.
 function onXRFrame (time, frame) {
@@ -121,8 +130,11 @@ function onXRFrame (time, frame) {
     for (const view of pose.views) {
       const { x, y, width, height } = glLayer.getViewport(view)
       gl.viewport(x, y, width, height)
-      mat4.multiply(V, view.projectionMatrix, mat4.translate(V, view.transform.inverse.matrix, [-10, -3 - 1.93, -8]))
-      drawScene(V)
+      mat4.multiply(VP, view.projectionMatrix, mat4.translate(V, view.transform.inverse.matrix, vec3.negate([], position)))
+      vec3.add(eyePos, mat4.getTranslation(eyePos, view.transform.matrix), position)
+      vec3.add(light1Pos, mat4.getTranslation(light1Pos, frame.getPose(session.inputSources[0].targetRaySpace, xrRefSpace).transform.matrix), position)
+      vec3.add(light2Pos, mat4.getTranslation(light2Pos, frame.getPose(session.inputSources[1].targetRaySpace, xrRefSpace).transform.matrix), position)
+      drawScene(VP, { eyePos, light1Pos, light2Pos })
     }
   }
 }

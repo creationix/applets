@@ -21,7 +21,7 @@ const gl = ctx
 const P = mat4.create()
 const V = mat4.create()
 
-gl.clearColor(0, 0, 0, 0.8)
+gl.clearColor(0, 0, 0, 1)
 gl.enable(gl.DEPTH_TEST)
 gl.enable(gl.CULL_FACE)
 gl.cullFace(gl.BACK)
@@ -117,7 +117,7 @@ makeScene(gl).then(drawScene => {
 
     mat4.multiply(V, P, mat4.invert(V, V))
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
-    drawScene(V)
+    drawScene(V, { light1Pos: position, light2Pos: [8, 20, 8], eyePos: position })
 
     window.requestAnimationFrame(render)
   }

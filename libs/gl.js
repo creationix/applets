@@ -268,6 +268,9 @@ const uniformSetters = {
   0x8b5c: function setFloatMat4 (gl, location, size, value) {
     gl.uniformMatrix4fv(location, false, value)
   },
+  0x8b51: function setFloatVec3 (gl, location, size, value) {
+    gl.uniform3fv(location, value)
+  },
   /**
      * @param {WebGL2RenderingContext} gl
      * @param {WebGLUniformLocation} location
