@@ -3,7 +3,7 @@ import * as mat4 from '../libs/gl-matrix/src/mat4.js'
 import * as vec3 from '../libs/gl-matrix/src/vec3.js'
 import * as quat from '../libs/gl-matrix/src/quat.js'
 
-document.body.textContent = ''
+// document.body.textContent = ''
 const canvas = document.createElement('canvas')
 document.body.appendChild(canvas)
 
@@ -46,9 +46,12 @@ makeScene(gl).then(drawScene => {
     KeyA: 0,
     KeyS: 0,
     KeyD: 0,
-    get z () { return move.KeyW - move.KeyS },
-    get x () { return move.KeyA - move.KeyD },
-    get y () { return move.ShiftLeft - move.Space },
+    joyX: 0,
+    joyY: 0,
+    joyZ: 0,
+    get z () { return move.KeyW - move.KeyS + move.joyY },
+    get x () { return move.KeyA - move.KeyD - move.joyX },
+    get y () { return move.ShiftLeft - move.Space - move.joyZ },
     get speed () { return move.ControlLeft ? 0.008 : 0.004 },
     get fov () { return move.ControlLeft ? 75 : 60 },
     rotateY: 0,
@@ -70,20 +73,96 @@ makeScene(gl).then(drawScene => {
     // console.log(move.x, move.y, move.z)
   }
 
-  window.onpointermove = evt => {
-    if (document.pointerLockElement !== canvas) return
-    evt.preventDefault()
-    move.rotateY -= evt.movementX * 0.2
+  /**
+   * @param {number} mx
+   * @param {number} my
+   */
+  function onDrag (mx, my) {
+    move.rotateY -= mx * 0.4
     while (move.rotateY < 0) move.rotateY += 360
     while (move.rotateY >= 360) move.rotateY -= 360
-    move.rotateX = Math.max(-90, Math.min(90, move.rotateX - evt.movementY * 0.33))
-    // console.log(move.rotateY, move.rotateX)
+    move.rotateX = Math.max(-90, Math.min(90, move.rotateX - my * 0.5))
   }
 
-  canvas.onclick = evt => {
-    canvas.requestPointerLock()
-    canvas.requestFullscreen()
+  function onJoy (x, y) {
+    move.joyX = Math.min(1, Math.max(-1, (x - 100) / 75))
+    move.joyY = Math.min(1, Math.max(-1, (y - 100) / 75))
   }
+
+  function onFly (y) {
+    move.joyZ = Math.min(1, Math.max(-1, (y - 100) / 75))
+  }
+
+  window.onmousemove = evt => {
+    if (document.pointerLockElement !== document.body) return
+    evt.preventDefault()
+    onDrag(evt.movementX, evt.movementY)
+  }
+
+  document.body.onclick = evt => {
+    document.body.requestPointerLock()
+    document.body.requestFullscreen()
+  }
+
+  /** @type {{[id:number]:{clientX:number,clientY:number,isRotate:boolean}}} */
+  const touches = {}
+  let touch = false
+  window.addEventListener('touchstart', evt => {
+    if (!touch) {
+      touch = true
+      document.getElementById('arrows').style.display = 'block'
+      document.getElementById('fly').style.display = 'block'
+    }
+    evt.preventDefault()
+    for (const { identifier, clientX, clientY } of evt.changedTouches) {
+      const y = window.innerHeight - clientY
+      const x = clientX
+      if (y >= 25 && y <= 175) {
+        if (x >= 25 && x <= 175) {
+          touches[identifier] = { mode: 'joy' }
+          return onJoy(x, y)
+        }
+        const rx = window.innerWidth - clientX
+        if (rx >= 25 && rx <= 75) {
+          touches[identifier] = { mode: 'fly' }
+          return onFly(y)
+        }
+      }
+      touches[identifier] = { clientX, clientY, mode: 'drag' }
+    }
+  })
+
+  window.addEventListener('touchend', evt => {
+    evt.preventDefault()
+    for (const { identifier } of evt.changedTouches) {
+      const { mode } = touches[identifier]
+      delete touches[identifier]
+      if (mode === 'joy') {
+        move.joyX = 0
+        move.joyY = 0
+      } else if (mode === 'fly') {
+        move.joyZ = 0
+      }
+    }
+  })
+
+  window.addEventListener('touchmove', evt => {
+    evt.preventDefault()
+    for (const { identifier, clientX, clientY } of evt.changedTouches) {
+      const touch = touches[identifier]
+      if (touch.mode === 'drag') {
+        const mx = clientX - touch.clientX
+        const my = clientY - touch.clientY
+        touch.clientX = clientX
+        touch.clientY = clientY
+        onDrag(mx, my)
+      } else if (touch.mode === 'joy') {
+        onJoy(clientX, window.innerHeight - clientY)
+      } else if (touch.mode === 'fly') {
+        onFly(window.innerHeight - clientY)
+      }
+    }
+  })
 
   let time = Date.now()
 
@@ -103,9 +182,7 @@ makeScene(gl).then(drawScene => {
     const rx = move.rotateX * Math.PI / 180
 
     // Movement is enabled when pointer is locked
-    if (document.pointerLockElement === canvas) {
-      vec3.scaleAndAdd(position, position, vec3.rotateY(T, vec3.normalize(T, vec3.set(T, move.x, move.y, move.z)), [0, 0, 0], ry), dist)
-    }
+    vec3.scaleAndAdd(position, position, vec3.rotateY(T, vec3.normalize(T, vec3.set(T, move.x, move.y, move.z)), [0, 0, 0], ry), dist)
 
     quat.identity(Q)
     quat.rotateY(Q, Q, ry)
