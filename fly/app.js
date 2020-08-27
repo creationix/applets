@@ -39,9 +39,8 @@ makeScene(gl).then(drawScene => {
   resize()
 
   const move = {
-    ShiftLeft: 0,
-    Space: 0,
-    ControlLeft: 0,
+    KeyQ: 0,
+    KeyE: 0,
     KeyW: 0,
     KeyA: 0,
     KeyS: 0,
@@ -51,7 +50,7 @@ makeScene(gl).then(drawScene => {
     joyZ: 0,
     get z () { return move.KeyW - move.KeyS + move.joyY },
     get x () { return move.KeyA - move.KeyD - move.joyX },
-    get y () { return move.ShiftLeft - move.Space - move.joyZ },
+    get y () { return move.KeyQ - move.KeyE - move.joyZ },
     get speed () { return move.ControlLeft ? 0.008 : 0.004 },
     get fov () { return move.ControlLeft ? 75 : 60 },
     rotateY: 0,
