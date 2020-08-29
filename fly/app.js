@@ -3,6 +3,12 @@ import * as mat4 from '../libs/gl-matrix/src/mat4.js'
 import * as vec3 from '../libs/gl-matrix/src/vec3.js'
 import * as quat from '../libs/gl-matrix/src/quat.js'
 
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('service-worker.js').then(function () {
+    console.log('Service Worker Registered')
+  })
+}
+
 // document.body.textContent = ''
 const canvas = document.createElement('canvas')
 document.body.appendChild(canvas)
