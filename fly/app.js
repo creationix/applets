@@ -187,7 +187,9 @@ makeScene(gl).then(drawScene => {
     const rx = move.rotateX * Math.PI / 180
 
     // Movement is enabled when pointer is locked
-    vec3.scaleAndAdd(position, position, vec3.rotateY(T, vec3.normalize(T, vec3.set(T, move.x, move.y, move.z)), [0, 0, 0], ry), dist)
+    const l = vec3.length(vec3.set(T, move.x, move.y, move.z))
+    if (l > 1) vec3.scale(T, T, 1 / l)
+    vec3.scaleAndAdd(position, position, vec3.rotateY(T, T, [0, 0, 0], ry), dist)
 
     quat.identity(Q)
     quat.rotateY(Q, Q, ry)
