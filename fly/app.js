@@ -3,11 +3,11 @@ import * as mat4 from '../libs/gl-matrix/src/mat4.js'
 import * as vec3 from '../libs/gl-matrix/src/vec3.js'
 import * as quat from '../libs/gl-matrix/src/quat.js'
 
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js').then(function () {
-    console.log('Service Worker Registered')
-  })
-}
+// if ('serviceWorker' in navigator) {
+//   navigator.serviceWorker.register('service-worker.js').then(function () {
+//     console.log('Service Worker Registered')
+//   })
+// }
 
 // document.body.textContent = ''
 const canvas = document.createElement('canvas')
@@ -34,7 +34,7 @@ gl.cullFace(gl.BACK)
 
 makeScene(gl).then(drawScene => {
   // Auto resize canvas to fit in the window and have proper perspective.
-  function resize () {
+  function resize() {
     width = window.innerWidth
     height = window.innerHeight
     canvas.setAttribute('width', width)
@@ -54,11 +54,11 @@ makeScene(gl).then(drawScene => {
     joyX: 0,
     joyY: 0,
     joyZ: 0,
-    get z () { return move.KeyW - move.KeyS + move.joyY },
-    get x () { return move.KeyA - move.KeyD - move.joyX },
-    get y () { return move.KeyQ - move.KeyE - move.joyZ },
-    get speed () { return move.ControlLeft ? 0.008 : 0.004 },
-    get fov () { return move.ControlLeft ? 75 : 60 },
+    get z() { return move.KeyW - move.KeyS + move.joyY },
+    get x() { return move.KeyA - move.KeyD - move.joyX },
+    get y() { return move.KeyQ - move.KeyE - move.joyZ },
+    get speed() { return move.ControlLeft ? 0.008 : 0.004 },
+    get fov() { return move.ControlLeft ? 75 : 60 },
     rotateY: 0,
     rotateX: 0
   }
@@ -82,19 +82,19 @@ makeScene(gl).then(drawScene => {
    * @param {number} mx
    * @param {number} my
    */
-  function onDrag (mx, my) {
+  function onDrag(mx, my) {
     move.rotateY -= mx * 0.4
     while (move.rotateY < 0) move.rotateY += 360
     while (move.rotateY >= 360) move.rotateY -= 360
     move.rotateX = Math.max(-90, Math.min(90, move.rotateX - my * 0.5))
   }
 
-  function onJoy (x, y) {
+  function onJoy(x, y) {
     move.joyX = Math.min(1, Math.max(-1, (x - 100) / 75))
     move.joyY = Math.min(1, Math.max(-1, (y - 100) / 75))
   }
 
-  function onFly (y) {
+  function onFly(y) {
     move.joyZ = Math.min(1, Math.max(-1, (y - 100) / 75))
   }
 
@@ -178,7 +178,7 @@ makeScene(gl).then(drawScene => {
   const Q = quat.create()
 
   window.requestAnimationFrame(render)
-  function render () {
+  function render() {
     const now = Date.now()
     const delta = time - now
     time = now
