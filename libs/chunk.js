@@ -74,13 +74,13 @@ const frag = `#version 300 es
 `
 
 /** Block textures image */
-const img = loadImage('../imgs/minecraft-block-textures.webp')
-const img2 = loadImage('../imgs/blank.webp')
+const img = loadImage('../imgs/minecraft-block-textures.avif')
+const img2 = loadImage('../imgs/blank.avif')
 
 /**
  * @param {WebGL2RenderingContext} gl
  */
-export default async function makeChunk (gl) {
+export default async function makeChunk(gl) {
   const programInfo = createProgram(gl, vert, frag)
   const bufferInfo = createBuffer(gl, programInfo.attributes, { data: generateMesh(data) })
   const blocks = createArrayTexture(gl, 16, 16, 32, await img)
@@ -113,7 +113,7 @@ export default async function makeChunk (gl) {
    * Draw the chunk
    * @param {Float32Array} viewProjection
    */
-  function drawChunk (viewProjection, { eyePos, light1Pos, light2Pos }) {
+  function drawChunk(viewProjection, { eyePos, light1Pos, light2Pos }) {
     gl.useProgram(programInfo.program)
     setUniforms(gl, programInfo.uniforms, { viewProjection, blocks, eyePos, light1Pos, light2Pos })
     setBuffersAndAttributes(gl, bufferInfo)

@@ -3,14 +3,14 @@
     "name": "Craft World",
     "icons": [
         {
-            "src": "/imgs/icon-256.png",
+            "src": "/imgs/icon-256.avif",
             "sizes": "256x256",
-            "type": "image/png"
+            "type": "image/avif"
         },
         {
-            "src": "/imgs/maskable_icon.png",
+            "src": "/imgs/maskable_icon.avif",
             "sizes": "284x284",
-            "type": "image/png",
+            "type": "image/avif",
             "purpose": "maskable"
         }
     ],
