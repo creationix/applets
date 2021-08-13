@@ -1077,7 +1077,7 @@ const frag = `#version 300 es
 
 /** Block textures image */
 const img = loadImage('../imgs/minecraft-block-textures.avif');
-const img2 = loadImage('../imgs/blank.avif');
+// const img2 = loadImage('../imgs/blank.avif')
 
 /**
  * @param {WebGL2RenderingContext} gl
@@ -1086,7 +1086,7 @@ async function makeChunk(gl) {
   const programInfo = createProgram(gl, vert, frag);
   const bufferInfo = createBuffer(gl, programInfo.attributes, { data: generateMesh(chunk) });
   const blocks = createArrayTexture(gl, 16, 16, 32, await img);
-  createArrayTexture(gl, 16, 16, 32, await img2);
+  // const border = createArrayTexture(gl, 16, 16, 32, await img2)
 
   setInterval(() => {
     let i;
