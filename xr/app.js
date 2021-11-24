@@ -132,8 +132,13 @@ function onXRFrame (time, frame) {
       gl.viewport(x, y, width, height)
       mat4.multiply(VP, view.projectionMatrix, mat4.translate(V, view.transform.inverse.matrix, vec3.negate([], position)))
       vec3.add(eyePos, mat4.getTranslation(eyePos, view.transform.matrix), position)
-      vec3.add(light1Pos, mat4.getTranslation(light1Pos, frame.getPose(session.inputSources[0].targetRaySpace, xrRefSpace).transform.matrix), position)
-      vec3.add(light2Pos, mat4.getTranslation(light2Pos, frame.getPose(session.inputSources[1].targetRaySpace, xrRefSpace).transform.matrix), position)
+      const poses = [light1Pos,light2Pos]
+      for (let i = 0; i < poses.length && i < session.inputSources.length; i++) {
+        const lightPos = poses[i]
+        const inputSource = session.inputSources[i]
+        vec3.add(lightPos, mat4.getTranslation(lightPos, frame.getPose(inputSource.targetRaySpace, xrRefSpace).transform.matrix), position)
+
+      }
       drawScene(VP, { eyePos, light1Pos, light2Pos })
     }
   }

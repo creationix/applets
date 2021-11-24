@@ -1076,7 +1076,7 @@ const frag = `#version 300 es
 `;
 
 /** Block textures image */
-const img = loadImage('../imgs/minecraft-block-textures.avif');
+const img = loadImage('../imgs/minecraft-block-textures.webp');
 // const img2 = loadImage('../imgs/blank.avif')
 
 /**

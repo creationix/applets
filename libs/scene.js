@@ -6,7 +6,7 @@ import makeChunk from './chunk.js'
  */
 export default async function makeScene(gl) {
   const [drawSky, drawChunk] = await Promise.all([
-    makeSky(gl, `../imgs/${['blue', 'orange', 'cyan'][Math.floor(Math.random() * 3)]}-sky.avif`),
+    makeSky(gl, `../imgs/${['blue', 'orange', 'cyan'][Math.floor(Math.random() * 3)]}-sky.webp`),
     makeChunk(gl)
   ])
 
