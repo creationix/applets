@@ -109,6 +109,37 @@ makeScene(gl).then(drawScene => {
     document.body.requestFullscreen()
   }
 
+  let gamepadInterval
+  window.addEventListener('gamepadconnected', evt => {
+    console.log({ gamepadconnected: evt })
+    if (!gamepadInterval) {
+      gamepadInterval = setInterval(checkGamepad, 33)
+    }
+  })
+
+  window.addEventListener('gamepaddisconnected', evt => {
+    console.log({ gamepaddisconnected: evt })
+    if (gamepadInterval) {
+      clearInterval(gamepadInterval)
+      gamepadInterval = undefined
+    }
+  })
+
+  let gx2 = 0, gy2 = 0
+  function checkGamepad() {
+    var [gamepad] = navigator.getGamepads();
+    const [x1, y1, x2, y2] = gamepad.axes
+    if (Math.abs(x2) > 0.2 || Math.abs(y2) > 0.2) {
+      onDrag(x2 * 10, y2 * 10)
+    }
+    move.joyX = Math.abs(x1) > 0.2 ? x1 : 0
+    move.joyY = Math.abs(y1) > 0.2 ? -y1 : 0
+    const l = gamepad.buttons[6].value
+    const r = gamepad.buttons[7].value
+    console.log(l,r,l > 0.2 ? l : 0,r > 0.2 ? r : 0)
+    move.joyZ = (l > 0.2 ? l : 0)-(r > 0.2 ? r : 0)
+  }
+
   /** @type {{[id:number]:{clientX:number,clientY:number,isRotate:boolean}}} */
   const touches = {}
   let touch = false
