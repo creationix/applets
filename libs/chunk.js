@@ -105,7 +105,7 @@ export default async function makeChunk(gl) {
     bufferInfo.numElements = newMesh.length >> 2
     gl.bufferData(gl.ARRAY_BUFFER, newMesh, gl.STATIC_DRAW)
     gl.bindBuffer(gl.ARRAY_BUFFER, null)
-  }, 500)
+  }, 100)
 
   return drawChunk
 
