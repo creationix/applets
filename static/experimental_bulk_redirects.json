@@ -1,0 +1,17 @@
+[
+  {
+    "source": "/simple-redirect",
+    "destination": "/internal-destination",
+    "permanent": false
+  },
+  {
+    "source": "/another-redirect",
+    "destination": "https://example.com/somewhere-else?with=query",
+    "permanent": true
+  },
+  {
+    "source": "/preserve-query-params",
+    "destination": "/new-path/here",
+    "keepQuery": true
+  }
+]
