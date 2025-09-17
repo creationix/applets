@@ -12,6 +12,6 @@
   {
     "source": "/preserve-query-params",
     "destination": "/new-path/here",
-    "keepQuery": true
+    "query": true
   }
 ]
